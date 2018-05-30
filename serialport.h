@@ -23,7 +23,7 @@ class SerialPort
 private:
     int fd; /* File Descriptor */
     static const int SIZE = 2048;
-    char read_buffer[SIZE]; /* Buffer to store the data received              */
+    char readBuffer[SIZE]; /* Buffer to store the data received              */
     static SerialPort *p_instance;
     static SerialPortDestroyer destroyer;
 protected:
@@ -33,9 +33,57 @@ protected:
     ~SerialPort();
     friend class SerialPortDestroyer;
 public:
+    int getFd();
+    int getSizeReadBuffer();
+    char *getReadBuffer();
     static SerialPort &getInstance();
     int readData();
 };
 
+class MachineSerialPort
+{
+    class StateSerialPort *current;
+public:
+    MachineSerialPort();
+    void setCurrent(StateSerialPort *s)
+    {
+        current = s;
+    }
+    void at();
+    void ati();
+    void cbc();
+};
+
+class StateSerialPort
+{
+public:
+    virtual void at(MachineSerialPort *m) {}
+    virtual void ati(MachineSerialPort *m) {}
+    virtual void cbc(MachineSerialPort *m) {}
+};
+
+class At: public StateSerialPort
+{
+public:
+    At() {}
+    ~At() {}
+    void at(MachineSerialPort *m);
+};
+
+class Ati: public StateSerialPort
+{
+public:
+    Ati() {}
+    ~Ati() {}
+    void ati(MachineSerialPort *m);
+};
+
+class Cbc: public StateSerialPort
+{
+public:
+    Cbc() {}
+    ~Cbc() {}
+    void cbc(MachineSerialPort *m);
+};
 
 #endif // SERIALPORT_H

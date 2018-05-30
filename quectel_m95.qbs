@@ -9,6 +9,7 @@ Project {
             "main.cpp",
             "serialport.cpp",
             "serialport.h",
+            "serialportstate.cpp",
         ]
 
         Group {     // Properties for the produced executable

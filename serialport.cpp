@@ -88,45 +88,25 @@ SerialPort::~SerialPort()
 int SerialPort::readData()
 {
     if (fd != -1) {
-        /*------------------------------- Read data from serial port -----------------------------*/
-        ssize_t bytes_read = 0; /* Number of bytes read by the read() system call */
-
-        char at[] = "AT\r\n";
-
-        write(fd, at, sizeof(at) - 1);
-        tcflush(fd, TCOFLUSH);  /* Discards old data in the tx buffer            */
-
-        sleep(1);
-        bytes_read = read(fd, &read_buffer, sizeof(read_buffer));  /* Read the data                   */
-        tcflush(fd, TCIFLUSH);  /* Discards old data in the rx buffer            */
-
-        for (int i = 0; i < bytes_read; i++)	 /*printing only the received characters*/
-            printf("%c", read_buffer[i]);
-
-        char ati[] = "ATI\r\n";
-
-        write(fd, ati, sizeof(ati) - 1);
-        tcflush(fd, TCOFLUSH);  /* Discards old data in the tx buffer            */
-
-        sleep(1);
-        bytes_read = read(fd, &read_buffer, sizeof(read_buffer));  /* Read the data                   */
-        tcflush(fd, TCIFLUSH);  /* Discards old data in the rx buffer            */
-
-        for (int i = 0; i < bytes_read; i++)	 /*printing only the received characters*/
-            printf("%c", read_buffer[i]);
-
-        char cbc[] = "AT+CBC\r\n";
-
-        write(fd, cbc, sizeof(cbc) - 1);
-        tcflush(fd, TCOFLUSH);  /* Discards old data in the tx buffer            */
-
-        sleep(1);
-        bytes_read = read(fd, &read_buffer, sizeof(read_buffer));  /* Read the data                   */
-        tcflush(fd, TCIFLUSH);  /* Discards old data in the rx buffer            */
-
-        for (int i = 0; i < bytes_read; i++)	 /*printing only the received characters*/
-            printf("%c", read_buffer[i]);
+        MachineSerialPort state;
+        state.at();
+        state.ati();
+        state.cbc();
     }
-
     return 0;
+}
+
+int SerialPort::getFd()
+{
+    return fd;
+}
+
+char *SerialPort::getReadBuffer()
+{
+    return readBuffer;
+}
+
+int SerialPort::getSizeReadBuffer()
+{
+    return SIZE;
 }
