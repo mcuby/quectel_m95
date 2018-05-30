@@ -1,0 +1,1 @@
+quectel_m95
