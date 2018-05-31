@@ -22,8 +22,10 @@ class SerialPort
 {
 private:
     int fd; /* File Descriptor */
+
     static const int SIZE = 2048;
     char readBuffer[SIZE]; /* Buffer to store the data received              */
+
     static SerialPort *p_instance;
     static SerialPortDestroyer destroyer;
 protected:
@@ -37,7 +39,10 @@ public:
     int getSizeReadBuffer();
     char *getReadBuffer();
     static SerialPort &getInstance();
-    int readData();
+    int readTestData();
+    int readFromSerial();
+    int writeToSerial(const char *cmd, int sizeCmd);
+    int writeToConsole(const char *buf, int size);
 };
 
 class MachineSerialPort

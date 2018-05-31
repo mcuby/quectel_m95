@@ -10,6 +10,7 @@ Project {
             "serialport.cpp",
             "serialport.h",
             "serialportstate.cpp",
+            "strategyouts.h",
         ]
 
         Group {     // Properties for the produced executable

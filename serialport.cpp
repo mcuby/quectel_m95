@@ -85,7 +85,7 @@ SerialPort::~SerialPort()
     }
 }
 
-int SerialPort::readData()
+int SerialPort::readTestData()
 {
     if (fd != -1) {
         MachineSerialPort state;
@@ -109,4 +109,34 @@ char *SerialPort::getReadBuffer()
 int SerialPort::getSizeReadBuffer()
 {
     return SIZE;
+}
+
+int SerialPort::writeToSerial(const char *cmd, int sizeCmd)
+{
+    int fd = SerialPort::getInstance().getFd();
+    write(fd, cmd, sizeCmd);
+    tcflush(fd, TCOFLUSH);  /* Discards old data in the tx buffer            */
+    return 0;
+}
+
+int SerialPort::readFromSerial()
+{
+    ssize_t bytes_read = 0; /* Number of bytes read by the read() system call */
+
+    int fd = SerialPort::getInstance().getFd();
+    char *readBuffer = SerialPort::getInstance().getReadBuffer();
+    int size = SerialPort::getInstance().getSizeReadBuffer();
+
+    bytes_read = read(fd, readBuffer, size);  /* Read the data                   */
+    tcflush(fd, TCIFLUSH);  /* Discards old data in the rx buffer            */
+
+    return bytes_read;
+}
+
+int SerialPort::writeToConsole(const char *buf, int size)
+{
+    for (int i = 0; i < size; i++)	 /*printing only the received characters*/
+        printf("%c", buf[i]);
+
+    std::cout << "----------------------------------------------------------\n";
 }
