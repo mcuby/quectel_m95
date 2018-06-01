@@ -24,18 +24,14 @@ public:
     void getDataStorageSize()
     {
         std::string cmd =  std::string(QfldsCmd) + std::string(memoryType) + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
     }
     void listFiles(std::string fileName)
     {
         std::string cmd =  std::string(QflstCmd) + std::string("\"") + fileName +  std::string("\"") + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
     }
 };
 
@@ -47,18 +43,15 @@ public:
     void getDataStorageSize()
     {
         std::string cmd =  std::string(QfldsCmd) + std::string("\"") + std::string(memoryType) + std::string("\"") + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
+
     }
     void listFiles(std::string fileName)
     {
         std::string cmd =  std::string(QflstCmd) + std::string("\"") + std::string(memoryType) + std::string(":") + fileName +  std::string("\"") + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
     }
 };
 
@@ -70,19 +63,15 @@ public:
     void getDataStorageSize()
     {
         std::string cmd =  std::string(QfldsCmd) + std::string(memoryType) + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
     }
     void listFiles(std::string fileName)
     {
         std::string cmd =  std::string(QflstCmd) + std::string("\"") + std::string(memoryType) + std::string(":") + fileName +  std::string("\"") + std::string(EndCmd);
-        SerialPort::getInstance().writeToSerial(cmd.c_str(), static_cast<int>(cmd.size()));
-        sleep(1);
-        int bytes_read = SerialPort::getInstance().readFromSerial();
-        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
-    }
+        char bufRead[SerialPort::getInstance().getSizeReadBuffer()];
+        SerialPort::getInstance().writeAndRead(cmd.c_str(), 1000, bufRead, sizeof(bufRead));
+      }
 };
 
 class ModemStorage

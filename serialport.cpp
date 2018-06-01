@@ -177,3 +177,17 @@ int SerialPort::writeToConsole(const char *buf, int size)
     std::cout << "----------------------------------------------------------\n";
     return 0;
 }
+
+int SerialPort::writeAndRead(const std::string &bufWrite, int sleepTime, char *bufRead, int sizeBufRead, int log)
+{
+    SerialPort::getInstance().writeToSerial(bufWrite.c_str(), static_cast<int>(bufWrite.size()));
+    usleep(static_cast<unsigned int>(sleepTime));
+    int bytes_read = SerialPort::getInstance().readFromSerial();
+
+    std::copy(SerialPort::getInstance().getReadBuffer(), SerialPort::getInstance().getReadBuffer() + ((bytes_read > sizeBufRead) ? sizeBufRead : bytes_read), bufRead);
+
+    if (log)
+        SerialPort::getInstance().writeToConsole(SerialPort::getInstance().getReadBuffer(), bytes_read);
+
+    return bytes_read;
+}
