@@ -6,6 +6,7 @@
 #include <unistd.h>  /* UNIX Standard Definitions 	   */
 #include <errno.h>   /* ERROR Number Definitions           */
 #include <iostream>
+#include <algorithm>
 
 class SerialPort; // опережающее объявление
 
@@ -43,6 +44,7 @@ public:
     int readFromSerial();
     int writeToSerial(const char *cmd, int sizeCmd);
     int writeToConsole(const char *buf, int size);
+    int writeAndRead(const std::string &bufWrite, int sleepTime, char *bufRead, int sizeBufRead, int log = 1);
 };
 
 class MachineSerialPort

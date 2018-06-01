@@ -10,10 +10,14 @@ Project {
             "serialport.cpp",
             "serialport.h",
             "serialportstate.cpp",
+            "strategyouts.cpp",
             "strategyouts.h",
         ]
 
+        cpp.cxxFlags: ["-std=c++17"]
+
         Group {     // Properties for the produced executable
+
             fileTagsFilter: "application"
             qbs.install: true
         }

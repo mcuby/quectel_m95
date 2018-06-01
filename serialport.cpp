@@ -48,24 +48,43 @@ SerialPort::SerialPort()
         cfsetispeed(&SerialPortSettings, B115200); /* Set Read  Speed as 115200                       */
         cfsetospeed(&SerialPortSettings, B115200); /* Set Write Speed as 115200                       */
 
-        /* 8N1 Mode */
-        SerialPortSettings.c_cflag &= ~PARENB;   /* Disables the Parity Enable bit(PARENB),So No Parity   */
-        SerialPortSettings.c_cflag &= ~CSTOPB;   /* CSTOPB = 2 Stop bits,here it is cleared so 1 Stop bit */
-        SerialPortSettings.c_cflag &= ~CSIZE;	 /* Clears the mask for setting the data size             */
-        SerialPortSettings.c_cflag |=  CS8;      /* Set the data bits = 8                                 */
+        SerialPortSettings.c_cflag = (SerialPortSettings.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+        // disable IGNBRK for mismatched speed tests; otherwise receive break
+        // as \000 chars
+        SerialPortSettings.c_iflag &= ~IGNBRK;         // disable break processing
+        SerialPortSettings.c_lflag = 0;                // no signaling chars, no echo,
+        // no canonical processing
+        SerialPortSettings.c_oflag = 0;                // no remapping, no delays
+        SerialPortSettings.c_cc[VMIN]  = 0;            // read doesn't block
+        SerialPortSettings.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
-        SerialPortSettings.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
-        SerialPortSettings.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
+        SerialPortSettings.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
+
+        SerialPortSettings.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
+        // enable reading
+        SerialPortSettings.c_cflag &= ~(PARENB | PARODD);      // shut off parity
+        SerialPortSettings.c_cflag |= 0;
+        SerialPortSettings.c_cflag &= ~CSTOPB;
+        SerialPortSettings.c_cflag &= ~CRTSCTS;
+
+//        /* 8N1 Mode */
+//        SerialPortSettings.c_cflag &= ~PARENB;   /* Disables the Parity Enable bit(PARENB),So No Parity   */
+//        SerialPortSettings.c_cflag &= ~CSTOPB;   /* CSTOPB = 2 Stop bits,here it is cleared so 1 Stop bit */
+//        SerialPortSettings.c_cflag &= ~CSIZE;	 /* Clears the mask for setting the data size             */
+//        SerialPortSettings.c_cflag |=  CS8;      /* Set the data bits = 8                                 */
+
+//        SerialPortSettings.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
+//        SerialPortSettings.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
 
 
-        SerialPortSettings.c_iflag &= ~(IXON | IXOFF | IXANY);          /* Disable XON/XOFF flow control both i/p and o/p */
-        SerialPortSettings.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG);  /* Non Cannonical mode                            */
+//        SerialPortSettings.c_iflag &= ~(IXON | IXOFF | IXANY);          /* Disable XON/XOFF flow control both i/p and o/p */
+//        SerialPortSettings.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG);  /* Non Cannonical mode                            */
 
-        SerialPortSettings.c_oflag &= ~OPOST;/*No Output Processing*/
+//        SerialPortSettings.c_oflag &= ~OPOST;/*No Output Processing*/
 
-        /* Setting Time outs */
-        SerialPortSettings.c_cc[VMIN] = 10; /* Read at least 10 characters */
-        SerialPortSettings.c_cc[VTIME] = 0; /* Wait indefinetly   */
+//        /* Setting Time outs */
+//        SerialPortSettings.c_cc[VMIN] = 10; /* Read at least 10 characters */
+//        SerialPortSettings.c_cc[VTIME] = 0; /* Wait indefinetly   */
 
 
         if ((tcsetattr(fd, TCSANOW, &SerialPortSettings)) != 0) { /* Set the attributes to the termios structure*/
@@ -73,7 +92,24 @@ SerialPort::SerialPort()
             close(fd); /* Close the serial port */
         } else {
             std::cout << "\nBaudRate = 115200 \n  StopBits = 1 \n  Parity   = none\n";
+            if (tcgetattr(fd, &SerialPortSettings) != 0) {
+                perror("error from tggetattr");
+                SerialPortSettings.c_cc[VMIN]  = 0 ? 1 : 0;
+                SerialPortSettings.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+
+                if (tcsetattr(fd, TCSANOW, &SerialPortSettings) != 0)
+                    perror("error setting term attributes");
+//                return;
+            }
+
+
+//            tcflush(fd, TCIOFLUSH);  /* Discards old data in the rx buffer            */
         }
+
+
+
+
+
         std::cout << "\n----------------------------------------------------------\n";
     }
 }
@@ -114,8 +150,8 @@ int SerialPort::getSizeReadBuffer()
 int SerialPort::writeToSerial(const char *cmd, int sizeCmd)
 {
     int fd = SerialPort::getInstance().getFd();
-    write(fd, cmd, sizeCmd);
     tcflush(fd, TCOFLUSH);  /* Discards old data in the tx buffer            */
+    write(fd, cmd, static_cast<size_t>(sizeCmd));
     return 0;
 }
 
@@ -127,10 +163,10 @@ int SerialPort::readFromSerial()
     char *readBuffer = SerialPort::getInstance().getReadBuffer();
     int size = SerialPort::getInstance().getSizeReadBuffer();
 
-    bytes_read = read(fd, readBuffer, size);  /* Read the data                   */
+    bytes_read = read(fd, readBuffer, static_cast<size_t>(size));  /* Read the data                   */
     tcflush(fd, TCIFLUSH);  /* Discards old data in the rx buffer            */
 
-    return bytes_read;
+    return static_cast<int>(bytes_read);
 }
 
 int SerialPort::writeToConsole(const char *buf, int size)
@@ -139,4 +175,5 @@ int SerialPort::writeToConsole(const char *buf, int size)
         printf("%c", buf[i]);
 
     std::cout << "----------------------------------------------------------\n";
+    return 0;
 }
